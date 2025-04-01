@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>menu</title>
+    <link
+      rel="stylesheet"
+      href="../lib/layui-v2.10.3/css/layui.css"
+      media="all"
+    />
+    <link rel="stylesheet" href="../css/public.css" media="all" />
+    <style>
+      .layui-btn:not(.layui-btn-lg):not(.layui-btn-sm):not(.layui-btn-xs) {
+        height: 34px;
+        line-height: 34px;
+        padding: 0 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layuiTiny-container">
+      <div class="layuiTiny-main">
+        <blockquote class="layui-elem-quote">
+          树表组件 treeTable 是基于 table
+          组件延伸的树形表格组件，支持常见的树组件功能。<br />
+          注意：该组件不支持 IE8，若要支持，可自行添加 polyfill实现兼容。<br />
+          <a
+            href="https://layui.dev/docs/2/treeTable/"
+            target="_blank"
+            class="layui-btn layui-btn-danger"
+            >treeTable</a
+          >
+        </blockquote>
+        <div>
+          <table
+            id="munu-table"
+            class="layui-table"
+            lay-filter="munu-table"
+          ></table>
+        </div>
+      </div>
+    </div>
+    <!-- 操作列 -->
+    <script type="text/html" id="auth-state">
+      <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit"
+        >修改</a
+      >
+      {{# if(!d.isParent) { }}
+      <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"
+        >删除</a
+      >
+      {{# } }}
+    </script>
+
+    <script src="../lib/layui-v2.10.3/layui.js" charset="utf-8"></script>
+    <script src="../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script>
+      layui.use(function () {
+        var treeTable = layui.treeTable;
+        var layer = layui.layer;
+        var dropdown = layui.dropdown;
+        // 渲染
+        var inst = treeTable.render({
+          elem: "#munu-table",
+          url: "../api/menus.json",
+          tree: {
+            customName: {
+              id: "authorityId", // 节点 ID
+              pid: "parentId", // 父节点 ID
+              name: "authorityName", // 节点名称
+              children: "children", // 子节点
+              isParent: "isParent", // 是否是父节点
+            },
+            view: {
+              showIcon: true, // 显示图标
+              expandAllDefault: true, // 默认展开所有
+              showFlexIconIfNotParent: false, // 不是父节点不显示折叠图标
+              indent: 20, // 层级缩进
+              iconLeaf: "", // 叶子节点图标
+            },
+          },
+          cols: [
+            [
+              { type: "numbers" },
+              { field: "authorityName", minWidth: 200, title: "权限名称" },
+              { field: "authority", title: "权限标识" },
+              { field: "menuUrl", title: "菜单url" },
+              {
+                field: "orderNumber",
+                width: 80,
+                align: "center",
+                title: "排序号",
+              },
+              {
+                field: "isMenu",
+                width: 80,
+                align: "center",
+                templet: function (d) {
+                  if (d.isMenu == 1) {
+                    return '<span class="layui-badge layui-bg-gray">按钮</span>';
+                  }
+                  if (d.parentId == -1) {
+                    return '<span class="layui-badge layui-bg-blue">目录</span>';
+                  } else {
+                    return '<span class="layui-badge-rim">菜单</span>';
+                  }
+                },
+                title: "类型",
+              },
+              {
+                templet: "#auth-state",
+                width: 130,
+                align: "left",
+                title: "操作",
+              },
+            ],
+          ],
+          page: false, // 让树形表格默认全部加载出来
+        });
+
+        // 单元格工具事件
+        treeTable.on("tool(" + inst.config.id + ")", function (obj) {
+          var layEvent = obj.event; // 获得 lay-event 对应的值
+          var trElem = obj.tr;
+          var trData = obj.data;
+          var tableId = obj.config.id;
+          if (layEvent === "del") {
+            layer.confirm(
+              "确定删除所选数据？",
+              { title: "温馨提示", icon: 3 },
+              function (index) {
+                // 重载表格
+                treeTable.reloadData(inst.config.id);
+                // 向服务端发送删除指令
+                // layer.msg("删除操作：" + trData.name);
+                layer.close(index);
+              }
+            );
+          } else if (layEvent === "edit") {
+            layer.open({
+              type: 1,
+              title: "编辑",
+              offset: "r",
+              anim: "slideLeft", // 从右往左
+              area: ["auto", "100%"],
+              shade: 0.1,
+              shadeClose: true,
+              id: "edit-menu-popup",
+              skin: "layuiTiny-popup",
+              content: '<div style="padding: 16px;">任意 HTML 内容</div>',
+            });
+          } else if (layEvent === "more") {
+            // 下拉菜单
+            dropdown.render({
+              elem: this, // 触发事件的 DOM 对象
+              show: true, // 外部事件触发即显示
+              align: "right", // 右对齐弹出
+              data: [
+                {
+                  title: "修改积分",
+                  id: "edit",
+                },
+                {
+                  title: "删除",
+                  id: "del",
+                },
+              ],
+              click: function (menudata) {
+                if (menudata.id === "del") {
+                  layer.confirm("真的删除行么", function (index) {
+                    obj.del(); // 等效如下
+                    // treeTable.removeNode(tableId, trElem.attr('data-index'))
+                    layer.close(index);
+                  });
+                } else if (menudata.id === "edit") {
+                  layer.prompt(
+                    {
+                      value: trData.experience,
+                      title: "输入新的积分",
+                    },
+                    function (value, index) {
+                      obj.update({ experience: value }); // 等效如下
+                      // treeTable.updateNode(tableId, trElem.attr('data-index'), {experience: value});
+                      layer.close(index);
+                    }
+                  );
+                }
+              },
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

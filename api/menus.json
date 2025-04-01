@@ -1,0 +1,87 @@
+{
+  "code": 0,
+  "msg": "",
+  "count": 3,
+  "data": [
+    {
+      "authorityId": 1,
+      "authorityName": "系统管理",
+      "authority": null,
+      "menuUrl": null,
+      "orderNumber": 1,
+      "isMenu": 0,
+      "parentId": -1,
+      "children": [
+        {
+          "authorityId": 2,
+          "authorityName": "用户管理",
+          "authority": null,
+          "menuUrl": "system/user",
+          "orderNumber": 2,
+          "isMenu": 0,
+          "parentId": 1,
+          "children": [
+            {
+              "authorityId": 3,
+              "authorityName": "查询用户",
+              "authority": "user:view",
+              "menuUrl": "",
+              "orderNumber": 3,
+              "isMenu": 1,
+              "parentId": 2,
+              "children": [],
+              "isParent": false
+            },
+            {
+              "authorityId": 4,
+              "authorityName": "添加用户",
+              "authority": "user:add",
+              "menuUrl": null,
+              "orderNumber": 4,
+              "isMenu": 1,
+              "parentId": 2,
+              "children": [],
+              "isParent": false
+            }
+          ],
+          "isParent": true
+        },
+        {
+          "authorityId": 5,
+          "authorityName": "角色管理",
+          "authority": null,
+          "menuUrl": "system/role",
+          "orderNumber": 5,
+          "isMenu": 0,
+          "parentId": 1,
+          "children": [
+            {
+              "authorityId": 6,
+              "authorityName": "查询角色",
+              "authority": "role:view",
+              "menuUrl": "",
+              "orderNumber": 6,
+              "isMenu": 1,
+              "parentId": 5,
+              "children": [],
+              "isParent": false
+            },
+            {
+              "authorityId": 7,
+              "authorityName": "添加角色",
+              "authority": "role:add",
+              "menuUrl": "",
+              "orderNumber": 7,
+              "isMenu": 1,
+              "parentId": 5,
+              "children": [],
+              "isParent": false
+            }
+          ],
+          "isParent": true
+        }
+      ],
+      "isParent": true
+    }
+  ]
+}

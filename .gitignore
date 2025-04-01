@@ -1,0 +1,11 @@
+.MP3
+.MP4
+.avi
+.py
+.DS_Store
+dist
+node_modules/
+scss/
+package-lock.json
+package.json
+unocss.config.ts

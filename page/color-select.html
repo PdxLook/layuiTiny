@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>颜色选择器</title>
+    <link
+      rel="stylesheet"
+      href="../lib/layui-v2.10.3/css/layui.css"
+      media="all"
+    />
+    <link rel="stylesheet" href="../css/public.css" media="all" />
+  </head>
+  <body>
+    <div class="layuiTiny-container">
+      <div class="layuiTiny-main">
+        <blockquote class="layui-elem-quote">
+          颜色选择器<br />
+          <a
+            href="https://layui.dev/docs/2/colorpicker/"
+            target="_blank"
+            class="layui-btn layui-btn-danger"
+            >colorpicker</a
+          >
+        </blockquote>
+
+        <form class="layui-form" action="" style="padding: 20px">
+          <div class="layui-form-item">
+            <label class="layui-form-label">颜色选择器</label>
+            <div class="layui-input-inline">
+              <div id="ID-colorpicker-demo-1"></div>
+            </div>
+          </div>
+        </form>
+
+        <pre class="layui-code">
+            layui.use(function () {
+                var colorpicker = layui.colorpicker;
+                var layer = layui.layer;
+                // 渲染
+                colorpicker.render({
+                  // eg1
+                  elem: "#ID-colorpicker-demo-1", // 绑定元素
+                  change: function (color) {
+                    // 颜色改变的回调
+                    layer.tips("选择了：" + color, this.elem, {
+                      tips: 1,
+                    });
+                  },
+                });
+              });
+        </pre>
+      </div>
+    </div>
+    <script src="../lib/layui-v2.10.3/layui.js" charset="utf-8"></script>
+    <script>
+      layui.use(function () {
+        var colorpicker = layui.colorpicker;
+        var layer = layui.layer;
+        // 渲染
+        colorpicker.render({
+          // eg1
+          elem: "#ID-colorpicker-demo-1", // 绑定元素
+          change: function (color) {
+            // 颜色改变的回调
+            layer.tips("选择了：" + color, this.elem, {
+              tips: 1,
+            });
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
