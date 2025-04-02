@@ -7,5 +7,6 @@ dist
 node_modules/
 scss/
 package-lock.json
+pnpm-lock.yaml
 package.json
 unocss.config.ts
