@@ -1,8 +1,8 @@
 /**
- * date: 2025/04/01
+ * date:2025/04/02
  * author: Mr. Xie
- * version: 1.0.0
- * description: layuiTiny tab框架扩展
+ * version:1.0.0
+ * description:layuiTiny tab框架扩展
  */
 layui.define(["element", "layer", "jquery"], function (exports) {
   var element = layui.element,
@@ -23,6 +23,7 @@ layui.define(["element", "layer", "jquery"], function (exports) {
       options.homeInfo = options.homeInfo || {};
       options.listenSwichCallback =
         options.listenSwichCallback || function () {};
+      options.clickHomeTabRefresh = options.clickHomeTabRefresh ? true : false;
       tinyTab.listen(options);
       tinyTab.listenRoll();
       tinyTab.listenSwitch(options);
@@ -125,6 +126,28 @@ layui.define(["element", "layer", "jquery"], function (exports) {
         tinyTab.delete(layId, true);
       }
     },
+    /**
+     * 刷新当前tab方法
+     * 不指定tabid刷新	tinyTab.reloadCurrentByIframe();
+     * 指定tabid刷新	tinyTab.reloadCurrentByIframe(tabId);
+     */
+    reloadCurrentByIframe: function () {
+      let iframe = window.top.layui
+        .$(".layui-tab-item.layui-show")
+        .find("iframe");
+      if (arguments.length !== 0) {
+        if (!$(".layui-tab-item.layui-show").has("id")) {
+          iframe = window.top.layui
+            .$('.layui-tab-content div[lay-id="' + arguments[0] + '"]')
+            .find("iframe");
+        }
+      }
+      if (iframe.length !== 0) {
+        iframe[0].src = iframe[0].src;
+      } else {
+        console.log("当前iframe刷新失败");
+      }
+    },
 
     /**
      * 判断tab窗口
@@ -157,13 +180,18 @@ layui.define(["element", "layer", "jquery"], function (exports) {
      */
     openTabRignMenu: function (tabId, left) {
       tinyTab.closeTabRignMenu();
-      var menuHtml = `<div class="layui-unselect layui-form-select layui-form-selected layuiTiny-tab-mousedown layui-show rounded" data-tab-id="${tabId}" style="left: ${left}px!important">
-                <dl>
-                <dd><a href="javascript:;" layuiTiny-tab-menu-close="current">关 闭 当 前</a></dd>
-                <dd><a href="javascript:;" layuiTiny-tab-menu-close="other">关 闭 其 他</a></dd>
-                <dd><a href="javascript:;" layuiTiny-tab-menu-close="all">关 闭 全 部</a></dd>
-                </dl>
-                </div>`;
+      var menuHtml =
+        '<div class="layui-unselect layui-form-select layui-form-selected layuiTiny-tab-mousedown layui-show" data-tab-id="' +
+        tabId +
+        '" style="left: ' +
+        left +
+        'px!important">\n' +
+        "<dl>\n" +
+        '<dd><a href="javascript:;" layuiTiny-tab-menu-close="current">关 闭 当 前</a></dd>\n' +
+        '<dd><a href="javascript:;" layuiTiny-tab-menu-close="other">关 闭 其 他</a></dd>\n' +
+        '<dd><a href="javascript:;" layuiTiny-tab-menu-close="all">关 闭 全 部</a></dd>\n' +
+        "</dl>\n" +
+        "</div>";
       var makeHtml = '<div class="layuiTiny-tab-make"></div>';
       $(".layuiTiny-tab .layui-tab-title").after(menuHtml);
       $(".layuiTiny-tab .layui-tab-content").after(makeHtml);
@@ -186,7 +214,7 @@ layui.define(["element", "layer", "jquery"], function (exports) {
       var menu;
       for (key in menuList) {
         var item = menuList[key];
-        if (item.href === href) {
+        if (item.href !== "" && href.startsWith(item.href)) {
           menu = item;
           break;
         }
@@ -414,6 +442,10 @@ layui.define(["element", "layer", "jquery"], function (exports) {
             tinyTab.listenSwitchMultiModule(tabId);
           } else {
             tinyTab.listenSwitchSingleModule(tabId);
+          }
+          //判断点击tab时，是否刷新
+          if (options.clickHomeTabRefresh) {
+            tinyTab.reloadCurrentByIframe(tabId);
           }
         }
         tinyTab.rollPosition();

@@ -1,7 +1,7 @@
 /**
- * date: 2025/04/01
+ * date:2025/04/02
  * author: Mr. Xie
- * version: 1.0.0
+ * version:1.0.0
  * description:layuiTiny theme框架扩展
  */
 layui.define(["jquery", "layer"], function (exports) {
@@ -17,7 +17,7 @@ layui.define(["jquery", "layer"], function (exports) {
     config: function (skinId) {
       var bgColorConfig = [
         {
-          "primary-900": "#6F94F4", // 最深色
+          "primary-900": "#006be6", // 最深色
           "primary-800": "#82A3F6",
           "primary-700": "#95B2F8",
           "primary-600": "#A8C1FA",
@@ -25,7 +25,7 @@ layui.define(["jquery", "layer"], function (exports) {
           "primary-400": "#CEDFFF",
           "primary-300": "#E1EEFF",
           "primary-200": "#F0F6FF",
-          "primary-100": "#F8FBFF", // 最浅色
+          "primary-100": "#D9E9FB", // 最浅色
         },
         {
           "primary-900": "#0A2F8E",

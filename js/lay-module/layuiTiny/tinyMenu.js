@@ -1,8 +1,8 @@
 /**
- * date: 2025/04/01
+ * date:2025/04/02
  * author: Mr. Xie
- * version: 1.0.0
- * description: layuiTiny 菜单框架扩展
+ * version:1.0.0
+ * description:layuiTiny 菜单框架扩展
  */
 layui.define(["element", "laytpl", "jquery"], function (exports) {
   var element = layui.element,
@@ -21,10 +21,20 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
       options.menuList = options.menuList || [];
       options.multiModule = options.multiModule || false;
       options.menuChildOpen = options.menuChildOpen || false;
+      options.leftMenuIsHide = options.leftMenuIsHide || false;
       if (options.multiModule) {
         tinyMenu.renderMultiModule(options.menuList, options.menuChildOpen);
       } else {
         tinyMenu.renderSingleModule(options.menuList, options.menuChildOpen);
+      }
+      if (sessionStorage.getItem("leftMenuIsShow") === null) {
+        options.leftMenuIsHide
+          ? tinyMenu.hideLeftMenu()
+          : tinyMenu.showLeftMenu();
+      } else {
+        sessionStorage.getItem("leftMenuIsShow") == 1
+          ? tinyMenu.hideLeftMenu()
+          : tinyMenu.showLeftMenu();
       }
       tinyMenu.listen();
     },
@@ -56,19 +66,18 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
      */
     compileMenu: function (menu, isSub) {
       var menuHtml =
-        '<li {{#if( d.menu){ }}  data-menu="{{=d.menu}}" {{#}}} class="layui-nav-item menu-li {{=d.childOpenClass}} {{=d.className}}"  {{#if( d.id){ }}  id="{{=d.id}}" {{#}}}> <a {{#if( d.href){ }} layuiTiny-href="{{=d.href}}" {{#}}} {{#if( d.target){ }}  target="{{=d.target}}" {{#}}} href="javascript:;">{{#if( d.icon){ }}  <i class="{{=d.icon}}"></i> {{#}}} <span class="layui-left-nav">{{=d.title}}</span></a>  {{# if(d.children){}} {{- d.children}} {{#}}} </li>';
-
+        '<li {{#if( d.menu){ }}  data-menu="{{d.menu}}" {{#}}} class="layui-nav-item menu-li {{d.childOpenClass}} {{d.className}}"  {{#if( d.id){ }}  id="{{d.id}}" {{#}}}> <a {{#if( d.href){ }} layuiTiny-href="{{d.href}}" {{#}}} {{#if( d.target){ }}  target="{{d.target}}" {{#}}} href="javascript:;">{{#if( d.icon){ }}  <i class="{{d.icon}}"></i> {{#}}} <span class="layui-left-nav">{{d.title}}</span></a>  {{# if(d.children){}} {{-d.children}} {{#}}} </li>';
       if (isSub) {
         menuHtml =
-          '<dd class="menu-dd {{=d.childOpenClass}} {{=d.className}}"> <a href="javascript:;"  {{#if( d.menu){ }}  data-menu="{{=d.menu}}" {{#}}} {{#if( d.id){ }}  id="{{=d.id}}" {{#}}} {{#if(( !d.child || !d.child.length ) && d.href){ }} layuiTiny-href="{{=d.href}}" {{#}}} {{#if( d.target){ }}  target="{{=d.target}}" {{#}}}> {{#if( d.icon){ }}  <i class="{{=d.icon}}"></i> {{#}}} <span class="layui-left-nav"> {{=d.title}}</span></a> {{# if(d.children){}} {{- d.children}} {{#}}}</dd>';
+          '<dd class="menu-dd {{d.childOpenClass}} {{ d.className }}"> <a href="javascript:;"  {{#if( d.menu){ }}  data-menu="{{d.menu}}" {{#}}} {{#if( d.id){ }}  id="{{d.id}}" {{#}}} {{#if(( !d.child || !d.child.length ) && d.href){ }} layuiTiny-href="{{d.href}}" {{#}}} {{#if( d.target){ }}  target="{{d.target}}" {{#}}}> {{#if( d.icon){ }}  <i class="{{d.icon}}"></i> {{#}}} <span class="layui-left-nav"> {{d.title}}</span></a> {{# if(d.children){}} {{-d.children}} {{#}}}</dd>';
       }
       return laytpl(menuHtml).render(menu);
     },
     compileMenuContainer: function (menu, isSub) {
       var wrapperHtml =
-        '<ul class="layui-nav layui-nav-tree layui-left-nav-tree {{-d.className}}" id="{{-d.id}}">{{- d.children}}</ul>';
+        '<ul class="layui-nav layui-nav-tree layui-left-nav-tree {{d.className}}" id="{{d.id}}">{{-d.children}}</ul>';
       if (isSub) {
-        wrapperHtml = '<dl class="layui-nav-child ">{{- d.children}}</dl>';
+        wrapperHtml = '<dl class="layui-nav-child ">{{-d.children}}</dl>';
       }
       if (!menu.children) {
         return "";
@@ -152,6 +161,7 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
           className: headerMenuCheckDefault,
           menu: menu,
           id: id,
+          icon: val.icon,
           title: val.title,
           href: "",
           target: "",
@@ -176,7 +186,22 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
       $(".layuiTiny-menu-header-mobile").html(headerMobileMenuHtml); //手机
       element.init();
     },
-
+    /**
+     * 左侧菜单隐藏和显示
+     */
+    hideLeftMenu: function () {
+      $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 0);
+      $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-indent");
+      $(".layui-layout-body").removeClass("layuiTiny-all");
+      $(".layui-layout-body").addClass("layuiTiny-mini");
+    },
+    showLeftMenu: function () {
+      $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 1);
+      $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-outdent");
+      $(".layui-layout-body").removeClass("layuiTiny-mini");
+      $(".layui-layout-body").addClass("layuiTiny-all");
+      layer.close(window.openTips);
+    },
     /**
      * 监听
      */
@@ -212,19 +237,11 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
         var isShow = $(".layuiTiny-tool [data-side-fold]").attr(
           "data-side-fold"
         );
+        sessionStorage.setItem("leftMenuIsShow", isShow);
         if (isShow == 1) {
-          // 缩放
-          $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 0);
-          $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-indent");
-          $(".layui-layout-body").removeClass("layuiTiny-all");
-          $(".layui-layout-body").addClass("layuiTiny-mini");
+          tinyMenu.hideLeftMenu();
         } else {
-          // 正常
-          $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 1);
-          $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-outdent");
-          $(".layui-layout-body").removeClass("layuiTiny-mini");
-          $(".layui-layout-body").addClass("layuiTiny-all");
-          layer.close(window.openTips);
+          tinyMenu.showLeftMenu();
         }
         element.init();
         layer.close(loading);
@@ -237,25 +254,11 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
         var isShow = $(".layuiTiny-tool [data-side-fold]").attr(
           "data-side-fold"
         );
+        sessionStorage.setItem("leftMenuIsShow", isShow);
         if (isShow == 1) {
-          // 缩放
-          $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 0);
-          $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-indent");
-          $(".layui-layout-body").removeClass("layuiTiny-all");
-          $(".layui-layout-body").addClass("layuiTiny-mini");
-          // $(".menu-li").each(function (idx,el) {
-          //     $(el).addClass("hidden-sub-menu");
-          // });
+          tinyMenu.hideLeftMenu();
         } else {
-          // 正常
-          $(".layuiTiny-tool [data-side-fold]").attr("data-side-fold", 1);
-          $(".layuiTiny-tool [data-side-fold]").attr("class", "fa fa-outdent");
-          $(".layui-layout-body").removeClass("layuiTiny-mini");
-          $(".layui-layout-body").addClass("layuiTiny-all");
-          // $(".menu-li").each(function (idx,el) {
-          //     $(el).removeClass("hidden-sub-menu");
-          // });
-          layer.close(window.openTips);
+          tinyMenu.showLeftMenu();
         }
         element.init();
         layer.close(loading);
@@ -281,6 +284,5 @@ layui.define(["element", "laytpl", "jquery"], function (exports) {
       );
     },
   };
-
   exports("tinyMenu", tinyMenu);
 });

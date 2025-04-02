@@ -1,8 +1,8 @@
 /**
- * date: 2025/04/01
+ * date:2025/04/02
  * author: Mr. Xie
- * version: 1.0.0
- * description: layuiTiny 主体框架扩展
+ * version:1.0.0
+ * description:layuiTiny 主体框架扩展
  */
 layui.define(
   ["jquery", "tinyMenu", "element", "tinyTab", "tinyTheme"],
@@ -14,19 +14,14 @@ layui.define(
       element = layui.element,
       tinyTab = layui.tinyTab;
 
-    if (!/http(s*):\/\//.test(location.href)) {
-      var tips =
-        "请先将项目部署至web容器（Apache/Tomcat/Nginx/IIS/等），否则部分数据将无法显示";
-      return layer.alert(tips);
-    }
-
     var tinyAdmin = {
       /**
        * 后台框架初始化
        * @param options.iniUrl   后台初始化接口地址
+       * @param options.data     非接口请求模式时，配置渲染数据
        * @param options.clearUrl   后台清理缓存接口
        * @param options.urlHashLocation URL地址hash定位
-       * @param options.skinThemeDefault 默认皮肤
+       * @param options.bgColorDefault 默认皮肤
        * @param options.multiModule 是否开启多模块
        * @param options.menuChildOpen 是否展开子菜单
        * @param options.loadingTime 初始化加载时间
@@ -35,49 +30,76 @@ layui.define(
        */
       render: function (options) {
         options.iniUrl = options.iniUrl || null;
+        options.data = options.data || null;
         options.clearUrl = options.clearUrl || null;
         options.urlHashLocation = options.urlHashLocation || false;
-        options.skinThemeDefault = options.skinThemeDefault || 0;
+        options.bgColorDefault = options.bgColorDefault || 0;
         options.multiModule = options.multiModule || false;
         options.menuChildOpen = options.menuChildOpen || false;
-        options.loadingTime = options.loadingTime || 1;
+        options.loadingTime = options.loadingTime || 0.02;
         options.pageAnim = options.pageAnim || false;
         options.maxTabNum = options.maxTabNum || 20;
-        $.getJSON(options.iniUrl, function (data) {
-          if (data == null) {
+        options.leftMenuIsHide = options.leftMenuIsHide || false;
+
+        if (options.iniUrl == null && options.data == null) {
+          var tips =
+            "请先将项目部署至web容器（Apache/Tomcat/Nginx/IIS/等）或者往render函数中data字段设置数据，否则部分数据将无法显示";
+          return layer.alert(tips);
+        }
+
+        /**
+         * 获取请求数据后，初始化操作
+         * @param data 响应数据
+         */
+        function renderData(data) {
+          tinyAdmin.renderLogo(data.logoInfo);
+          tinyAdmin.renderClear(options.clearUrl);
+          tinyAdmin.renderHome(data.homeInfo);
+          tinyAdmin.renderAnim(options.pageAnim);
+          tinyAdmin.listen();
+          tinyMenu.render({
+            menuList: data.menuInfo,
+            multiModule: options.multiModule,
+            menuChildOpen: options.menuChildOpen,
+            leftMenuIsHide: options.leftMenuIsHide,
+          });
+          tinyTab.render({
+            filter: "layuitinyTab",
+            urlHashLocation: options.urlHashLocation,
+            multiModule: options.multiModule,
+            menuChildOpen: options.menuChildOpen,
+            maxTabNum: options.maxTabNum,
+            menuList: data.menuInfo,
+            homeInfo: data.homeInfo,
+            clickHomeTabRefresh: options.clickHomeTabRefresh,
+            listenSwichCallback: function () {
+              tinyAdmin.renderDevice();
+            },
+          });
+          tinyTheme.render({
+            bgColorDefault: options.bgColorDefault,
+            listen: true,
+          });
+          tinyAdmin.deleteLoader(options.loadingTime);
+        }
+
+        if (/http(s*):\/\//.test(location.href)) {
+          $.getJSON(options.iniUrl, function (data) {
+            if (data == null) {
+              tinyAdmin.error("暂无菜单信息");
+            } else {
+              renderData(data);
+            }
+          }).fail(function () {
+            tinyAdmin.error("菜单接口有误");
+          });
+        } else {
+          if (options.data == null) {
             tinyAdmin.error("暂无菜单信息");
           } else {
-            tinyAdmin.renderLogo(data.logoInfo);
-            tinyAdmin.renderClear(options.clearUrl);
-            tinyAdmin.renderHome(data.homeInfo);
-            tinyAdmin.renderAnim(options.pageAnim);
-            tinyAdmin.listen();
-            tinyMenu.render({
-              menuList: data.menuInfo,
-              multiModule: options.multiModule,
-              menuChildOpen: options.menuChildOpen,
-            });
-            tinyTab.render({
-              filter: "layuitinyTab",
-              urlHashLocation: options.urlHashLocation,
-              multiModule: options.multiModule,
-              menuChildOpen: options.menuChildOpen,
-              maxTabNum: options.maxTabNum,
-              menuList: data.menuInfo,
-              homeInfo: data.homeInfo,
-              listenSwichCallback: function () {
-                tinyAdmin.renderDevice();
-              },
-            });
-            tinyTheme.render({
-              skinThemeDefault: options.skinThemeDefault,
-              listen: true,
-            });
-            tinyAdmin.deleteLoader(options.loadingTime);
+            renderData(options.data);
           }
-        }).fail(function () {
-          tinyAdmin.error("菜单接口有误");
-        });
+        }
       },
 
       /**
@@ -288,10 +310,10 @@ layui.define(
           if (clearUrl != undefined && clearUrl != "" && clearUrl != null) {
             $.getJSON(clearUrl, function (data, status) {
               layer.close(loading);
-              if (data.code != 1) {
-                return tinyAdmin.error(data.msg);
-              } else {
+              if (data.status == 200) {
                 return tinyAdmin.success(data.msg);
+              } else {
+                return tinyAdmin.error(data.msg);
               }
             }).fail(function () {
               layer.close(loading);
@@ -307,10 +329,7 @@ layui.define(
          * 刷新
          */
         $("body").on("click", "[data-refresh]", function () {
-          $(".layui-tab-item.layui-show")
-            .find("iframe")[0]
-            .contentWindow.location.reload();
-          tinyAdmin.success("刷新成功");
+          tinyTab.reloadCurrentByIframe();
         });
 
         /**
@@ -329,7 +348,7 @@ layui.define(
               tips +
               "</li></ul>";
             window.openTips = layer.tips(tips, $(this), {
-              tips: [2, "#fff"],
+              tips: [2, "#2f4056"],
               time: 300000,
               skin: "popup-tips",
               success: function (el) {
