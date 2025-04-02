@@ -711,7 +711,7 @@
 }
 
 .layuiTiny-menu-left .layui-nav .layui-nav-mored,.layuiTiny-menu-left .layui-nav-itemed>a .layui-nav-more{
-    margin-top: -9px!important;
+    /* margin-top: -9px!important; */
 }
 
 .layuiTiny-menu-left-zoom.layui-nav .layui-nav-mored,.layuiTiny-menu-left-zoom.layui-nav-itemed>a .layui-nav-more{
