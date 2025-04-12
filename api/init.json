@@ -1,7 +1,7 @@
 {
   "homeInfo": {
     "title": "首页",
-    "href": "page/welcome-1.html?t=1"
+    "href": "page/welcome-1.html"
   },
   "logoInfo": {
     "title": "LAYUI TINY",
@@ -10,17 +10,17 @@
   },
   "menuInfo": [
     {
+      "title": "首页",
+      "href": "page/welcome-1.html",
+      "icon": "fa fa-window-maximize",
+      "target": "_self"
+    },
+    {
       "title": "主页模板",
       "href": "",
       "icon": "fa fa-home",
       "target": "_self",
       "child": [
-        {
-          "title": "主页一",
-          "href": "page/welcome-1.html",
-          "icon": "fa fa-tachometer",
-          "target": "_self"
-        },
         {
           "title": "主页二",
           "href": "page/welcome-2.html",

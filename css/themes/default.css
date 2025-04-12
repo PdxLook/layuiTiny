@@ -141,7 +141,7 @@
 }
 
 .layuiTiny-menu-left .layui-nav-item.menu-li.layui-nav-itemed > a {
-  color: var(--primary-900) !important;
+  /* color: var(--primary-900) !important; */
 }
 
 /*左侧菜单选中字体颜色 leftMenuColorThis */

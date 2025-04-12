@@ -28,6 +28,8 @@ layui.define(["element", "layer", "jquery"], function (exports) {
       tinyTab.listenRoll();
       tinyTab.listenSwitch(options);
       tinyTab.listenHash(options);
+
+      tinyTab.highlightHomeMenu();
     },
 
     /**
@@ -668,6 +670,28 @@ layui.define(["element", "layer", "jquery"], function (exports) {
           },
           200
         );
+      }
+    },
+
+    /**
+     * homeInfo高亮
+     */
+    highlightHomeMenu: function () {
+      try {
+        const $homeMain = $("#layuiTinyHomeTabId");
+        if ($homeMain.length === 0) return;
+
+        if (!$homeMain.hasClass("layui-this")) return;
+
+        const homeId = $homeMain.attr("lay-id");
+        if (!homeId) return;
+
+        const $leftNav = $('a[layuitiny-href="' + homeId + '"]');
+        if ($leftNav.length === 0) return;
+
+        $leftNav.eq(0).closest(".menu-dd, .menu-li").addClass("layui-this");
+      } catch (e) {
+        console.error("高亮首页菜单失败：", e);
       }
     },
   };
